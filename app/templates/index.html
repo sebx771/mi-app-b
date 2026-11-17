@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trivia de cultura general</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Segoe UI", Inter, system-ui, sans-serif;
+        color: #172033;
+        background: #eef3ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: clamp(1rem, 4vw, 3rem);
+        overflow-x: hidden;
+        background:
+          radial-gradient(circle at 15% 20%, #b9d2ff 0, transparent 24rem),
+          radial-gradient(circle at 85% 80%, #ddd2ff 0, transparent 22rem),
+          linear-gradient(135deg, #f7f9ff 0%, #edf2ff 50%, #f7f3ff 100%);
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        width: 18rem;
+        height: 18rem;
+        border-radius: 50%;
+        border: 1px solid #ffffffaa;
+        pointer-events: none;
+      }
+
+      body::before {
+        top: -9rem;
+        right: -5rem;
+      }
+
+      body::after {
+        bottom: -11rem;
+        left: -6rem;
+      }
+
+      main {
+        position: relative;
+        width: min(100%, 44rem);
+        padding: clamp(1.35rem, 4vw, 2.8rem);
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid #ffffff;
+        border-radius: 1.5rem;
+        box-shadow: 0 24px 70px rgba(73, 91, 153, 0.18);
+        backdrop-filter: blur(18px);
+      }
+
+      .cabecera {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+      }
+
+      .marca {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .logo {
+        display: grid;
+        width: 3rem;
+        height: 3rem;
+        place-items: center;
+        flex: 0 0 auto;
+        border-radius: 0.9rem;
+        background: linear-gradient(145deg, #6677ff, #8b5cf6);
+        color: white;
+        font-size: 1.35rem;
+        box-shadow: 0 10px 24px #7169db55;
+      }
+
+      h1 {
+        margin: 0;
+        color: #26324e;
+        font-size: clamp(1.15rem, 3vw, 1.55rem);
+        letter-spacing: -0.02em;
+      }
+
+      #puntaje {
+        min-width: 6.5rem;
+        margin: 0;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid #e1e6f4;
+        border-radius: 999px;
+        background: #f7f8fc;
+        color: #596480;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .barra {
+        height: 0.38rem;
+        margin-bottom: 1.35rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #edf0f7;
+      }
+
+      #barra-progreso {
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #6677ff, #9b70ed);
+        transition: width 400ms ease;
+      }
+
+      #progreso {
+        margin: 0 0 0.55rem;
+        color: #73809c;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      #pregunta {
+        min-height: 2.5em;
+        margin: 0 0 1.4rem;
+        color: #202941;
+        font-size: clamp(1.35rem, 4vw, 1.85rem);
+        line-height: 1.25;
+        letter-spacing: -0.025em;
+      }
+
+      #opciones {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .opcion {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        min-height: 3.8rem;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid #dfe4ef;
+        border-radius: 0.9rem;
+        background: #ffffff;
+        color: #39445d;
+        font: inherit;
+        font-weight: 650;
+        text-align: left;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(42, 56, 100, 0.04);
+        transition: 180ms ease;
+      }
+
+      .opcion:hover:not(:disabled),
+      .opcion:focus-visible {
+        border-color: #7180dd;
+        background: #f7f8ff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(83, 97, 175, 0.12);
+        outline: none;
+      }
+
+      .opcion:disabled {
+        cursor: default;
+      }
+
+      .letra {
+        display: grid;
+        width: 2.35rem;
+        height: 2.35rem;
+        margin-right: 0.85rem;
+        place-items: center;
+        flex: 0 0 auto;
+        border-radius: 0.65rem;
+        background: #f0f2fa;
+        color: #66728f;
+        font-size: 0.85rem;
+        font-weight: 850;
+      }
+
+      .opcion.correcta {
+        border-color: #5bb98b;
+        background: #effaf5;
+        color: #246348;
+        box-shadow: 0 8px 20px #5bb98b20;
+      }
+
+      .opcion.correcta .letra {
+        background: #5bb98b;
+        color: white;
+      }
+
+      .opcion.incorrecta {
+        border-color: #e58a91;
+        background: #fff3f4;
+        color: #913843;
+        box-shadow: 0 8px 20px #d96b7520;
+      }
+
+      .opcion.incorrecta .letra {
+        background: #df7a84;
+        color: white;
+      }
+
+      .pie {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 4.5rem;
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+        border-top: 1px solid #edf0f6;
+      }
+
+      #resultado {
+        margin: 0;
+        color: #596480;
+        font-weight: 700;
+      }
+
+      #resultado.correcto {
+        color: #31815d;
+      }
+
+      #resultado.incorrecto {
+        color: #b44c57;
+      }
+
+      #siguiente {
+        min-width: 10rem;
+        min-height: 3rem;
+        padding: 0.75rem 1.1rem;
+        border: 0;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, #6677ff, #815dcb);
+        color: white;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 24px #7169db45;
+        transition: 180ms ease;
+      }
+
+      #siguiente:hover,
+      #siguiente:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px #7169db55;
+        outline: none;
+      }
+
+      #siguiente[hidden] {
+        display: none;
+      }
+
+      @media (max-width: 38rem) {
+        body {
+          align-items: start;
+        }
+
+        main {
+          margin-top: 0.5rem;
+          border-radius: 1.15rem;
+        }
+
+        .cabecera {
+          align-items: flex-start;
+        }
+
+        .logo {
+          width: 2.65rem;
+          height: 2.65rem;
+        }
+
+        #puntaje {
+          min-width: 5.6rem;
+          font-size: 0.85rem;
+        }
+
+        .pie {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        #siguiente {
+          width: 100%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="cabecera">
+        <div class="marca">
+          <span class="logo" aria-hidden="true">★</span>
+          <h1>Trivia de cultura general</h1>
+        </div>
+        <p id="puntaje">Puntaje: 0</p>
+      </header>
+      <div class="barra" aria-hidden="true">
+        <div id="barra-progreso"></div>
+      </div>
+      <p id="progreso" aria-live="polite">Cargando preguntas…</p>
+      <h2 id="pregunta"></h2>
+      <div id="opciones" aria-label="Opciones de respuesta"></div>
+      <div class="pie">
+        <p id="resultado" role="status" aria-live="polite"></p>
+        <button id="siguiente" type="button" hidden>Siguiente pregunta</button>
+      </div>
+    </main>
+    <script>
+      const progreso = document.querySelector("#progreso");
+      const textoPregunta = document.querySelector("#pregunta");
+      const contenedorOpciones = document.querySelector("#opciones");
+      const resultado = document.querySelector("#resultado");
+      const puntajeTexto = document.querySelector("#puntaje");
+      const siguiente = document.querySelector("#siguiente");
+      const barraProgreso = document.querySelector("#barra-progreso");
+
+      let preguntas = [];
+      let indice = 0;
+      let puntaje = 0;
+      let respondida = false;
+
+      function mostrarPregunta() {
+        const pregunta = preguntas[indice];
+        progreso.textContent = `Pregunta ${indice + 1} de ${preguntas.length}`;
+        barraProgreso.style.width = `${((indice + 1) / preguntas.length) * 100}%`;
+        textoPregunta.textContent = pregunta.texto;
+        resultado.textContent = "";
+        resultado.className = "";
+        siguiente.hidden = true;
+        respondida = false;
+        contenedorOpciones.replaceChildren();
+
+        pregunta.opciones.forEach((opcion, indiceOpcion) => {
+          const boton = document.createElement("button");
+          boton.type = "button";
+          boton.className = "opcion";
+
+          const letra = document.createElement("span");
+          letra.className = "letra";
+          letra.textContent = String.fromCharCode(65 + indiceOpcion);
+          const texto = document.createElement("span");
+          texto.textContent = opcion;
+          boton.append(letra, texto);
+          boton.addEventListener("click", () => enviarRespuesta(pregunta, indiceOpcion));
+          contenedorOpciones.append(boton);
+        });
+      }
+
+      async function enviarRespuesta(pregunta, opcion) {
+        if (respondida) return;
+        respondida = true;
+        contenedorOpciones.querySelectorAll("button").forEach((boton) => {
+          boton.disabled = true;
+        });
+
+        try {
+          const respuesta = await fetch("/api/responder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: pregunta.id, opcion }),
+          });
+          if (!respuesta.ok) throw new Error("No se pudo comprobar la respuesta.");
+          const datos = await respuesta.json();
+          const botones = contenedorOpciones.querySelectorAll("button");
+          botones[datos.respuesta_correcta].classList.add("correcta");
+          if (!datos.correcta) {
+            botones[opcion].classList.add("incorrecta");
+          }
+          if (datos.correcta) {
+            puntaje += 1;
+            resultado.textContent = "¡Correcto!";
+            resultado.className = "correcto";
+          } else {
+            resultado.textContent =
+              `Incorrecto. La respuesta correcta es: ${pregunta.opciones[datos.respuesta_correcta]}.`;
+            resultado.className = "incorrecto";
+          }
+          puntajeTexto.textContent = `Puntaje: ${puntaje}`;
+          siguiente.hidden = false;
+        } catch (error) {
+          respondida = false;
+          contenedorOpciones.querySelectorAll("button").forEach((boton) => {
+            boton.disabled = false;
+          });
+          resultado.textContent = error.message;
+        }
+      }
+
+      siguiente.addEventListener("click", () => {
+        indice += 1;
+        if (indice < preguntas.length) {
+          mostrarPregunta();
+        } else {
+          progreso.textContent = "Trivia completada";
+          textoPregunta.textContent = `¡Terminaste con ${puntaje} de ${preguntas.length} puntos!`;
+          contenedorOpciones.replaceChildren();
+          resultado.textContent = "";
+          siguiente.hidden = true;
+        }
+      });
+
+      fetch("/api/preguntas")
+        .then((respuesta) => {
+          if (!respuesta.ok) throw new Error("No se pudieron cargar las preguntas.");
+          return respuesta.json();
+        })
+        .then((datos) => {
+          preguntas = datos;
+          mostrarPregunta();
+        })
+        .catch((error) => {
+          progreso.textContent = error.message;
+        });
+    </script>
+  </body>
+</html>
