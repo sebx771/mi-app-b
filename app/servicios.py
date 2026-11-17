@@ -51,14 +51,14 @@ _PREGUNTAS: list[dict[str, object]] = [
 ]
 
 
-def obtener_preguntas() -> list[Pregunta]:
+def obtener_preguntas(cantidad: int = 5) -> list[Pregunta]:
     return [
         {
             "id": pregunta["id"],
             "texto": pregunta["texto"],
             "opciones": list(pregunta["opciones"]),
         }
-        for pregunta in _PREGUNTAS
+        for pregunta in _PREGUNTAS[:cantidad]
     ]
 
 

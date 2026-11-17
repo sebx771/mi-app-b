@@ -108,6 +108,27 @@
         text-align: center;
       }
 
+      .selector-cantidad {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.65rem;
+        margin-bottom: 1.25rem;
+        color: #596480;
+        font-weight: 700;
+      }
+
+      #cantidad {
+        min-width: 4.5rem;
+        min-height: 2.5rem;
+        padding: 0.45rem 0.65rem;
+        border: 1px solid #dfe4ef;
+        border-radius: 0.65rem;
+        background: white;
+        color: #39445d;
+        font: inherit;
+      }
+
       .barra {
         height: 0.38rem;
         margin-bottom: 1.35rem;
@@ -319,6 +340,16 @@
         </div>
         <p id="puntaje">Puntaje: 0</p>
       </header>
+      <label class="selector-cantidad" for="cantidad">
+        Preguntas
+        <select id="cantidad">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5" selected>5</option>
+        </select>
+      </label>
       <div class="barra" aria-hidden="true">
         <div id="barra-progreso"></div>
       </div>
@@ -338,6 +369,7 @@
       const puntajeTexto = document.querySelector("#puntaje");
       const siguiente = document.querySelector("#siguiente");
       const barraProgreso = document.querySelector("#barra-progreso");
+      const cantidad = document.querySelector("#cantidad");
 
       let preguntas = [];
       let indice = 0;
@@ -424,18 +456,27 @@
         }
       });
 
-      fetch("/api/preguntas")
-        .then((respuesta) => {
+      async function cargarPreguntas() {
+        indice = 0;
+        puntaje = 0;
+        respondida = false;
+        puntajeTexto.textContent = "Puntaje: 0";
+        textoPregunta.textContent = "";
+        contenedorOpciones.replaceChildren();
+        siguiente.hidden = true;
+
+        try {
+          const respuesta = await fetch(`/api/preguntas?cantidad=${cantidad.value}`);
           if (!respuesta.ok) throw new Error("No se pudieron cargar las preguntas.");
-          return respuesta.json();
-        })
-        .then((datos) => {
-          preguntas = datos;
+          preguntas = await respuesta.json();
           mostrarPregunta();
-        })
-        .catch((error) => {
+        } catch (error) {
           progreso.textContent = error.message;
-        });
+        }
+      }
+
+      cantidad.addEventListener("change", cargarPreguntas);
+      cargarPreguntas();
     </script>
   </body>
 </html>
